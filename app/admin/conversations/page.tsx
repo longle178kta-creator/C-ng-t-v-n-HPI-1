@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -81,6 +83,7 @@ export default async function AdminConversationsPage() {
                 <TableHead>Kênh</TableHead>
                 <TableHead>Số tin nhắn</TableHead>
                 <TableHead>Thời gian bắt đầu</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -90,6 +93,14 @@ export default async function AdminConversationsPage() {
                   <TableCell>{conv.messageCount} tin nhắn</TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(conv.started_at).toLocaleString("vi-VN")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link href={`/admin/conversations/${conv.id}`}>Xem chi tiết</Link>}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

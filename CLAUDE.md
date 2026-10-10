@@ -65,7 +65,7 @@ Widget chat ở landing page ([components/landing/chat-widget.tsx](components/la
 2. Gọi Gemini REST API (`generateContent`) với `system_instruction` liệt kê **toàn bộ** `qnaEntries` từ [lib/mock-data.ts](lib/mock-data.ts), yêu cầu model chỉ trả lời trong phạm vi đó — không tự bịa thêm.
 3. Lưu câu trả lời vào `messages` (`sender: "bot"`) rồi trả về `{ conversationId, reply }`.
 
-Client chỉ giữ `conversationId` (một UUID, trong `useRef`) để nối tiếp cùng hội thoại khi gửi tin nhắn tiếp theo — **không** giữ nội dung hội thoại ở bộ nhớ trình duyệt làm nguồn dữ liệu chính; nguồn sự thật là Supabase. Trang [app/admin/conversations/page.tsx](app/admin/conversations/page.tsx) là Server Component, đọc trực tiếp từ 2 bảng này để hiển thị danh sách hội thoại thật (không còn dùng mock).
+Client chỉ giữ `conversationId` (một UUID, trong `useRef`) để nối tiếp cùng hội thoại khi gửi tin nhắn tiếp theo — **không** giữ nội dung hội thoại ở bộ nhớ trình duyệt làm nguồn dữ liệu chính; nguồn sự thật là Supabase. [app/admin/conversations/page.tsx](app/admin/conversations/page.tsx) (danh sách) và [app/admin/conversations/[id]/page.tsx](<app/admin/conversations/[id]/page.tsx>) (chi tiết từng tin nhắn, route động) đều là Server Component, đọc trực tiếp từ 2 bảng này — không còn dùng mock.
 
 Muốn thêm/sửa câu hỏi chatbot biết trả lời thì sửa `qnaEntries` trong `lib/mock-data.ts`, không sửa prompt rải rác nơi khác.
 
