@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { DeleteConversationButton } from "@/components/admin/delete-conversation-button";
+import { LeadCard } from "@/components/admin/lead-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import type { Lead } from "@/lib/leads";
 import { deleteConversation } from "../actions";
 
 interface MessageRow {
@@ -21,6 +23,7 @@ interface ConversationDetail {
   channel: string;
   started_at: string;
   messages: MessageRow[];
+  lead: Lead | null;
 }
 
 async function getConversationDetail(
@@ -51,8 +54,14 @@ async function getConversationDetail(
     return { conversation: null, error: "Không tải được tin nhắn của hội thoại này." };
   }
 
+  const { data: lead } = await supabaseAdmin
+    .from("leads")
+    .select("*")
+    .eq("conversation_id", id)
+    .maybeSingle();
+
   return {
-    conversation: { ...conversation, messages: messages ?? [] },
+    conversation: { ...conversation, messages: messages ?? [], lead: lead ?? null },
     error: null,
   };
 }
@@ -97,6 +106,12 @@ export default async function AdminConversationDetailPage({
           </div>
         }
       />
+
+      {!error && conversation && (
+        <div className="mb-6">
+          <LeadCard lead={conversation.lead} />
+        </div>
+      )}
 
       <Card className="p-6">
         {error ? (

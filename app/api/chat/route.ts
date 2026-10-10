@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { chatGreeting } from "@/lib/mock-data";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { extractAndSaveLead } from "@/lib/leads";
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const FALLBACK_REPLY = "Xin lỗi, mình chưa trả lời được câu này, bạn thử lại giúp mình nhé.";
@@ -190,6 +191,18 @@ export async function POST(request: Request) {
     console.error("Supabase insert bot message error:", botMsgError);
     // Tin nhắn bot vẫn trả về cho người dùng dù lưu DB thất bại, tránh mất câu trả lời đã có.
   }
+
+  // Trích xuất/cập nhật thông tin lead chạy SAU khi đã trả lời khách (after()),
+  // không làm chậm phản hồi chat. Dùng model rẻ/nhanh riêng, xem lib/leads.ts.
+  const finalConversationId = conversationId!;
+  after(() => {
+    extractAndSaveLead(geminiApiKey, finalConversationId, [
+      ...history,
+      { sender: "bot", content: reply },
+    ]).catch((err) => {
+      console.error("Lead extraction failed:", err);
+    });
+  });
 
   return NextResponse.json({ conversationId, reply });
 }
