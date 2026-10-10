@@ -4,18 +4,14 @@ import React from "react";
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { qnaEntries } from "@/lib/mock-data";
+import { chatGreeting, quickQuestions } from "@/lib/mock-data";
 
 interface Message {
   from: "bot" | "user";
   text: string;
 }
 
-const quickQuestions = qnaEntries.map((item) => item.question);
-
-const initialMessages: Message[] = [
-  { from: "bot", text: "Chào bạn! Mình là trợ lý ảo của DuHoc24, bạn cần hỗ trợ gì về hồ sơ du học?" },
-];
+const initialMessages: Message[] = [{ from: "bot", text: chatGreeting }];
 
 const ERROR_REPLY = "Xin lỗi, mình đang gặp sự cố khi trả lời, bạn thử lại sau nhé.";
 
