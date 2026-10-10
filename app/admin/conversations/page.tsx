@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { DeleteConversationButton } from "@/components/admin/delete-conversation-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -11,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { deleteConversation } from "./actions";
 
 interface ConversationRow {
   id: string;
@@ -95,12 +97,15 @@ export default async function AdminConversationsPage() {
                     {new Date(conv.started_at).toLocaleString("vi-VN")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      nativeButton={false}
-                      render={<Link href={`/admin/conversations/${conv.id}`}>Xem chi tiết</Link>}
-                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        nativeButton={false}
+                        render={<Link href={`/admin/conversations/${conv.id}`}>Xem chi tiết</Link>}
+                      />
+                      <DeleteConversationButton action={deleteConversation.bind(null, conv.id)} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

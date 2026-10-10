@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { DeleteConversationButton } from "@/components/admin/delete-conversation-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { deleteConversation } from "../actions";
 
 interface MessageRow {
   id: string;
@@ -77,17 +79,22 @@ export default async function AdminConversationDetailPage({
             : undefined
         }
         action={
-          <Button
-            size="sm"
-            variant="outline"
-            nativeButton={false}
-            render={
-              <Link href="/admin/conversations">
-                <ArrowLeft className="size-3.5" />
-                Quay lại
-              </Link>
-            }
-          />
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              nativeButton={false}
+              render={
+                <Link href="/admin/conversations">
+                  <ArrowLeft className="size-3.5" />
+                  Quay lại
+                </Link>
+              }
+            />
+            {conversation && (
+              <DeleteConversationButton action={deleteConversation.bind(null, conversation.id)} />
+            )}
+          </div>
         }
       />
 
