@@ -43,7 +43,7 @@ Cấu trúc route:
 `/login` chưa tồn tại — sẽ dựng ở Tuần 6, đừng tạo trước.
 
 ### Một nguồn dữ liệu duy nhất: `lib/mock-data.ts`
-[lib/mock-data.ts](lib/mock-data.ts) là nguồn sự thật duy nhất cho mọi dữ liệu hiển thị: `schools`, `servicePackages`, `admissionRequests`, `studentProfiles`, `conversations`, và hồ sơ demo `currentStudent` dùng ở `/portal`. File này cũng định nghĩa các union type trạng thái dùng xuyên suốt app:
+[lib/mock-data.ts](lib/mock-data.ts) là nguồn sự thật cho dữ liệu hiển thị còn lại chưa nối backend: `schools`, `servicePackages`, `admissionRequests`, `studentProfiles`, `qnaEntries`, và hồ sơ demo `currentStudent` dùng ở `/portal`. Riêng hội thoại chatbot (`conversations`/`messages`) đã nối Supabase thật, không còn là mock (xem mục Chatbot bên dưới). File này cũng định nghĩa các union type trạng thái dùng xuyên suốt app:
 - `DocStatus`: `chua_nop | dang_xu_ly | hop_le | can_nop_lai`
 - `RequestStatus`: `cho_duyet | da_duyet | tu_choi`
 - `ServicePackage`: `co_ban | toan_dien`
@@ -59,11 +59,25 @@ Khi thêm trang hoặc component mới cần dữ liệu mẫu, thêm vào file 
 ### Tailwind CSS v4, không có file config riêng
 Không có `tailwind.config.ts` — theme và CSS variables khai báo thẳng trong [app/globals.css](app/globals.css) theo cách của Tailwind v4 (`@theme`). Dùng helper `cn()` từ [lib/utils.ts](lib/utils.ts) (clsx + tailwind-merge) để gộp class có điều kiện, đã dùng nhất quán trong toàn bộ component.
 
-### Chatbot QnA dùng Gemini (Tuần 2)
-Widget chat ở landing page ([components/landing/chat-widget.tsx](components/landing/chat-widget.tsx)) gọi `POST /api/chat` ([app/api/chat/route.ts](app/api/chat/route.ts)), route handler này gọi Gemini REST API (`generateContent`) với `system_instruction` liệt kê **toàn bộ** `qnaEntries` từ [lib/mock-data.ts](lib/mock-data.ts) và yêu cầu model chỉ trả lời trong phạm vi đó — không tự bịa thêm. Cần biến `GEMINI_API_KEY` trong `.env`/`.env.local` để chạy được (xem bên dưới). Muốn thêm/sửa câu hỏi chatbot biết trả lời thì sửa `qnaEntries`, không sửa prompt rải rác nơi khác.
+### Chatbot QnA dùng Gemini + lưu hội thoại vào Supabase (Tuần 2-3)
+Widget chat ở landing page ([components/landing/chat-widget.tsx](components/landing/chat-widget.tsx)) gọi `POST /api/chat` ([app/api/chat/route.ts](app/api/chat/route.ts)). Route handler này:
+1. Tạo (hoặc nối tiếp) một `conversation` trong bảng Supabase `conversations`, lưu tin nhắn của khách vào bảng `messages` (`sender: "user"`).
+2. Gọi Gemini REST API (`generateContent`) với `system_instruction` liệt kê **toàn bộ** `qnaEntries` từ [lib/mock-data.ts](lib/mock-data.ts), yêu cầu model chỉ trả lời trong phạm vi đó — không tự bịa thêm.
+3. Lưu câu trả lời vào `messages` (`sender: "bot"`) rồi trả về `{ conversationId, reply }`.
+
+Client chỉ giữ `conversationId` (một UUID, trong `useRef`) để nối tiếp cùng hội thoại khi gửi tin nhắn tiếp theo — **không** giữ nội dung hội thoại ở bộ nhớ trình duyệt làm nguồn dữ liệu chính; nguồn sự thật là Supabase. Trang [app/admin/conversations/page.tsx](app/admin/conversations/page.tsx) là Server Component, đọc trực tiếp từ 2 bảng này để hiển thị danh sách hội thoại thật (không còn dùng mock).
+
+Muốn thêm/sửa câu hỏi chatbot biết trả lời thì sửa `qnaEntries` trong `lib/mock-data.ts`, không sửa prompt rải rác nơi khác.
+
+### Supabase chỉ truy cập được từ server, không bao giờ từ trình duyệt
+[lib/supabase-admin.ts](lib/supabase-admin.ts) là **điểm truy cập Supabase duy nhất**, dùng `createAdminClient()` từ `@supabase/server/core` (secret key, bỏ qua RLS). File này import `server-only` ở đầu — build sẽ lỗi ngay nếu lỡ import nó vào một component `"use client"`. Chỉ gọi `getSupabaseAdmin()` từ route handler (`app/api/*/route.ts`) hoặc Server Component (`page.tsx`/`layout.tsx` không có `"use client"`), không bao giờ từ component client. Bảng `conversations`/`messages` bật RLS nhưng **không có policy nào** — publishable/anon key (nếu lỡ lộ) bị từ chối hoàn toàn, chỉ secret key mới đọc/ghi được. Xem skill [.agents/skills/supabase-server/SKILL.md](.agents/skills/supabase-server/SKILL.md) trước khi sửa code liên quan đến `@supabase/server` (auth mode, migrate code cũ, v.v.).
 
 ### Biến môi trường
-[.env.example](.env.example) liệt kê biến cho Gemini, Supabase và magic link. `GEMINI_API_KEY` **bắt buộc** để chatbot ở `/` trả lời được (route `/api/chat`); các biến Supabase/magic link vẫn **chưa cần** để chạy `npm run dev` — đừng thêm logic đọc các biến đó trước khi tính năng tương ứng (Tuần 3/6) thực sự được triển khai.
+[.env.example](.env.example) liệt kê đầy đủ. Hai nhóm biến **bắt buộc** để chạy đủ tính năng hiện tại (`npm run dev` vẫn chạy được UI mà thiếu chúng, nhưng chatbot sẽ báo lỗi):
+- `GEMINI_API_KEY` (+ `GEMINI_MODEL` tuỳ chọn) — chatbot trả lời.
+- `SUPABASE_URL`, `SUPABASE_SECRET_KEY` — admin client phía server, lưu hội thoại. **Không** thêm prefix `NEXT_PUBLIC_` cho 2 biến này.
+
+`NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` (client-side, cho đăng nhập magic link) vẫn **chưa cần** — đó là việc của Tuần 6, đừng thêm logic đọc trước khi tính năng đó được triển khai.
 
 ## Quy tắc Git
 

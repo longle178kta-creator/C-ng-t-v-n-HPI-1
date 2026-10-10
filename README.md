@@ -32,14 +32,14 @@ Bản hiện tại (Tuần 1) chỉ có UI tĩnh và mock data, chưa gọi API 
 
 ### Tuần 2 - Chatbot QnA thật
 - [x] Chatbot gọi Gemini API thật, trả lời dựa trên bộ QnA cho sẵn (`systemInstruction`)
-- [ ] Giữ mạch hội thoại trong phiên làm việc
+- [x] Giữ mạch hội thoại trong phiên làm việc
 
 ### Tuần 3 - Supabase, form báo giá, dashboard
-- [ ] Kết nối Supabase (qua Connector), tạo bảng `requests`, `schools`, `conversations`/`messages`
+- [x] Kết nối Supabase, tạo bảng `conversations`/`messages` (còn thiếu `requests`, `schools`)
 - [ ] Form báo giá hoạt động thật, lưu yêu cầu vào database
-- [ ] Lưu lịch sử chat QnA vào database
+- [x] Lưu lịch sử chat QnA vào database
 - [ ] `/schools` hiển thị dữ liệu điểm chuẩn thật
-- [ ] `/admin/requests` và `/admin/conversations` nối dữ liệu thật, có nút Duyệt/Từ chối
+- [x] `/admin/conversations` nối dữ liệu thật (`/admin/requests` + nút Duyệt/Từ chối vẫn chưa)
 - [ ] Deploy lên Vercel
 
 ### Tuần 4 - Đọc & xử lý hồ sơ giấy tờ
