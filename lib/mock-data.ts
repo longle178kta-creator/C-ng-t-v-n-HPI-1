@@ -281,6 +281,36 @@ export const conversations: Conversation[] = [
   },
 ];
 
+export interface QnaEntry {
+  question: string;
+  answer: string;
+}
+
+// Bộ câu hỏi - đáp án dùng làm "kiến thức nền" cho chatbot (systemInstruction).
+// Chatbot chỉ được trả lời trong phạm vi này, không tự bịa thêm.
+export const qnaEntries: QnaEntry[] = [
+  {
+    question: "Dịch vụ này gồm những gì?",
+    answer:
+      "Bên mình lo phần đối chiếu điểm chuẩn, kiểm tra hồ sơ và tư vấn chọn trường, chia làm 2 gói: Cơ bản và Toàn diện.",
+  },
+  {
+    question: "Bao lâu thì có kết quả xét duyệt?",
+    answer:
+      "Nộp đủ giấy tờ là có kết quả đối chiếu điểm chuẩn ngay. Sau đó tư vấn viên sẽ gọi xác nhận lại với bạn trong vòng 24h.",
+  },
+  {
+    question: "Chi phí dịch vụ là bao nhiêu?",
+    answer:
+      "Gói Cơ bản 18.000.000₫, gói Toàn diện 45.000.000₫ nhé. Bạn kéo lên phần báo giá phía trên để xem chi tiết quyền lợi từng gói.",
+  },
+  {
+    question: "Tôi cần chuẩn bị giấy tờ gì?",
+    answer:
+      "3 thứ thôi: bảng điểm (PDF), ảnh chứng chỉ IELTS, và ảnh CMND/CCCD hoặc hộ chiếu.",
+  },
+];
+
 // Hồ sơ của học viên đang đăng nhập demo tại /portal
 export const currentStudent = {
   name: "Nguyễn Minh Anh",

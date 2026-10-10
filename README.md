@@ -31,7 +31,7 @@ Trang `/login` chưa được dựng ở bước này. Học viên sẽ tự d�
 Bản hiện tại (Tuần 1) chỉ có UI tĩnh và mock data, chưa gọi API hay database thật. Các tuần tiếp theo sẽ lần lượt thêm:
 
 ### Tuần 2 - Chatbot QnA thật
-- [ ] Chatbot gọi Gemini API thật, trả lời dựa trên bộ QnA cho sẵn (`systemInstruction`)
+- [x] Chatbot gọi Gemini API thật, trả lời dựa trên bộ QnA cho sẵn (`systemInstruction`)
 - [ ] Giữ mạch hội thoại trong phiên làm việc
 
 ### Tuần 3 - Supabase, form báo giá, dashboard
